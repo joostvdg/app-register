@@ -1,3 +1,6 @@
 package com.github.joostvdg.appregister.model
 
-class Attribute(var key: String, var value: String)
+import org.springframework.data.annotation.TypeAlias
+
+@TypeAlias("attribute")
+class Attribute(val key: String, var value: String)

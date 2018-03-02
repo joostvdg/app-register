@@ -1,5 +1,8 @@
 package com.github.joostvdg.appregister.model
 
+import org.springframework.data.annotation.Id
+import org.springframework.data.annotation.TypeAlias
+
 // https://github.com/grafeas/grafeas
 //Component Type	Identifier	Example
 //Debian	deb://dist(optional):arch:name:version	deb://lucid:i386:acl:2.2.49-2
@@ -11,7 +14,8 @@ package com.github.joostvdg.appregister.model
 //Python	pip://package:version	pip://raven:5.13.0
 //RPM	rpm://dist(optional):arch:name:version	rpm://el6:i386:ImageMagick:6.7.2.7-4
 
-data class ResourceIdentifier (var type: ComponentType, var url: String) {
+@TypeAlias("url")
+data class ResourceIdentifier (val type: ComponentType, @Id val url: String) {
     companion object {
         fun fromMavenGav(groupId: String, artifactId: String, version: String): ResourceIdentifier {
             //Maven	gav://group:artifact:version	gav://ant:ant:1.6.5
