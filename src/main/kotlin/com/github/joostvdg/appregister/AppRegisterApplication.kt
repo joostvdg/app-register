@@ -8,4 +8,5 @@ open class AppRegisterApplication
 
 fun main(args: Array<String>) {
     runApplication<AppRegisterApplication>(*args)
+
 }
