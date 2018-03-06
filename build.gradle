@@ -70,8 +70,12 @@ task integrationTest(type: Test) {
     testClassesDirs = sourceSets.integrationTest.output.classesDirs
     // So that Gradle knows which runtime class path to use:
     classpath = sourceSets.integrationTest.runtimeClasspath
-
 }
+
+task showMeCache << {
+    configurations.compile.each { println it }
+}
+
 dependencies {
 	compile('org.springframework.boot:spring-boot-starter-actuator')
 	compile('org.springframework.boot:spring-boot-starter-data-mongodb')

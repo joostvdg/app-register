@@ -1,0 +1,51 @@
+version: "3.5"
+
+#  docs:
+#    build: docs
+#    image: appregister-docs
+#    labels:
+#      - com.github.joostvdg.namespace=appregister
+#      - com.github.joostvdg.name="Docs"
+#      - com.github.joostvdg.description="User documentation"
+#      - com.github.joostvdg.webPath=/
+#      - com.github.joostvdg.webPort=8889
+#    ports:
+#      - 8889:80
+
+services:
+
+  backend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: appregister-backend
+    labels:
+      - com.github.joostvdg.namespace=appregister
+      - com.github.joostvdg.name="App Register Backend"
+      - com.github.joostvdg.description="The backend application for App Register, for registering applications"
+      - com.github.joostvdg.webPath=/
+      - com.github.joostvdg.webPort=8888
+    ports:
+      - 8888:8888
+
+  mongodb:
+    image: 'bitnami/mongodb:3.6'
+    labels:
+      - com.github.joostvdg.namespace=appregister
+      - com.github.joostvdg.name="MongoDB"
+      - com.github.joostvdg.description="The MongoDB database"
+      - com.github.joostvdg.webPath=/
+      - com.github.joostvdg.webPort=27017
+    ports:
+      - "27017:27017"
+    volumes: ["mongodb_data:/bitnami"]
+
+  backend-integrationtest:
+    build:
+      context: .
+      dockerfile: Dockerfile-integrationtest
+    image: appregister-backend-test
+    command: "gradle integrationTest"
+
+volumes:
+  mongodb_data:

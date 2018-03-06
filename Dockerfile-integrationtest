@@ -1,0 +1,9 @@
+FROM gradle:4.6-jdk8
+USER root
+RUN mkdir /usr/src/project
+WORKDIR /usr/src/project
+RUN gradle -v
+COPY build.gradle /usr/src/project
+RUN gradle showMeCache
+COPY . /usr/src/project
+RUN gradle build

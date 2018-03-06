@@ -31,3 +31,44 @@ Application Registration system.
   ]
 }
 ```
+
+## The PLAN
+
+### Components
+
+* app register backend :: Spring Boot 2 :: Kotlin :: Gradle
+* app register client :: Go CLI
+
+### Build Process Backend
+
+* build with Gradle into a Docker image -> Docker Compose
+* start Docker container
+* Put sources into a Gradle Build Container -> execute integration tests (shared network/dns name)
+* build in swarm-ci:
+    * sonarqube
+    * gattlin
+    * release into Artifactory 
+
+### Runtime
+
+* Docker Swarm Service for MongoDB
+* Docker Swarm Service for App-Register backend
+* DFP, DFM, ELK
+
+### Basic functionality
+
+* Teams
+* Person
+* Owner
+    * person?
+    * team?
+* Products
+    * uri
+    * initial authors (listOf person)
+    * current owners
+    * Components: 0..n
+        * dependencies: 0..n
+        * url
+* Blueprint for DUI
+    * DUI = technical challenge of distributed, parallel, concurrent computing
+    * app-register = problem domain

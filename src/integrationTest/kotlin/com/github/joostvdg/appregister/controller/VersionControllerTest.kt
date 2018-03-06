@@ -10,7 +10,7 @@ class VersionControllerTest {
 
     @Test
     fun testVersionController() {
-        val spec = RequestSpecBuilder().setBaseUri("http://localhost:8888").build()
+        val spec = RequestSpecBuilder().setBaseUri("http://backend:8888").build()
             given().spec(spec)
                     .`when`().
                 get("/version").
