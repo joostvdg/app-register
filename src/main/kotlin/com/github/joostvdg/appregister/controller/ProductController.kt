@@ -1,6 +1,6 @@
 package com.github.joostvdg.appregister.controller
 
-import com.github.joostvdg.appregister.model.Product
+import com.github.joostvdg.appregister.model.product.Product
 import com.github.joostvdg.appregister.model.ResourceIdentifier
 import com.github.joostvdg.appregister.service.ProductService
 import org.springframework.web.bind.annotation.GetMapping

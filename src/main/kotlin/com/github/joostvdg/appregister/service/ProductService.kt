@@ -1,8 +1,8 @@
 package com.github.joostvdg.appregister.service
 
 import com.github.joostvdg.appregister.model.Attribute
-import com.github.joostvdg.appregister.model.Component
-import com.github.joostvdg.appregister.model.Product
+import com.github.joostvdg.appregister.model.product.Component
+import com.github.joostvdg.appregister.model.product.Product
 import com.github.joostvdg.appregister.model.ResourceIdentifier
 import com.github.joostvdg.appregister.repository.ProductRepository
 import org.springframework.beans.factory.annotation.Autowired
@@ -28,7 +28,7 @@ class ProductServiceImpl: ProductService {
         val nameAttribute = Attribute("name", "jenkins")
         val mainLanguageAttribute = Attribute("main-language", "java")
         val identifier = UUID.randomUUID().toString()
-        val jenkins = Product(identifier, jenkinsResourceIdentifier, "Kohsuke Kawaguchi", 2010, listOf(jenkinsRemotingComponent), listOf(nameAttribute, mainLanguageAttribute))
+        val jenkins = Product(identifier, jenkinsResourceIdentifier, "Kohsuke Kawaguchi", 2010, listOf(jenkinsRemotingComponent), listOf(nameAttribute, mainLanguageAttribute), null, null)
         return listOf(jenkins)
     }
 

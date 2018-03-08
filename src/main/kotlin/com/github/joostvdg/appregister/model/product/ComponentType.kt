@@ -1,4 +1,4 @@
-package com.github.joostvdg.appregister.model
+package com.github.joostvdg.appregister.model.product
 
 import org.springframework.data.annotation.TypeAlias
 

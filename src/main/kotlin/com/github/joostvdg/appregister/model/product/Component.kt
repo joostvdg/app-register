@@ -1,5 +1,6 @@
-package com.github.joostvdg.appregister.model
+package com.github.joostvdg.appregister.model.product
 
+import com.github.joostvdg.appregister.model.ResourceIdentifier
 import org.springframework.data.annotation.Id
 import org.springframework.data.annotation.TypeAlias
 import org.springframework.data.mongodb.core.mapping.Document
