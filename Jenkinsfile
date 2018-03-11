@@ -20,7 +20,7 @@ pipeline {
                 }
             }
             steps {
-                sh 'gradle build'
+                sh 'gradle build --info --stacktrace'
                 archiveArtifacts allowEmptyArchive: false, artifacts: 'build/libs/app-register-0.0.1-SNAPSHOT.jar', fingerprint: true
             }
        
@@ -37,7 +37,7 @@ pipeline {
                 withSonarQubeEnv('sonar') {
                     // requires SonarQube Scanner for Gradle 2.1+
                     // It's important to add --info because of SONARJNKNS-281
-                    sh 'gradle --info sonarqube'
+                    sh 'gradle --info --stacktrace sonarqube'
                 }
             }
         }
@@ -50,22 +50,25 @@ pipeline {
                 }
             }
             steps {
-                // TODO: gradle release to artifactory?
+                // TODO: parameterise credentials
                 sh "gradle publish -Partifactory_contextUrl=http://artifactory:8081/artifactory"
             }
         }
-        // TOOD1: first have to solve the workspace problem --> artifact should be coming from the repo
-        // TODO2: use docker build args so that the Dockerfile is re-usable locally and for CI
-        // base structure: ${artifactoryBaseUrl}/gradle-release-local/com/github/joostvdg/app-register/
-        // stage('Docker Build') {
-        //     agent { label 'docker' }
-        //     steps {
-        //         sh 'ls -lath'
-        //         sh 'ls -lath build'
-        //         sh 'ls -lath build/libs'
-        //         sh 'docker-compose build backend'
-        //     }
-        // }
+
+        stage('Docker Build') {
+             agent { label 'docker' }
+             steps {
+                 sh 'docker-compose build backend'
+             }
+        }
+        // TODO: mount to network so we can push to registry:5000
+        stage('Docker Tag & Push') {
+            agent { label 'docker' }
+            steps {
+                sh 'docker tag appregister-backend:latest localhost:5000/appregister-backend:latest'
+                sh 'docker push localhost:5000/appregister-backend:latest'
+            }
+        }
     }
     post {
         always {
