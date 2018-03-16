@@ -41,6 +41,42 @@ pipeline {
                 }
             }
         }
+        stage('Pre-Test') {
+            agent { label 'docker' }
+            steps {
+                sh 'docker-compose up -d --build backend mongodb'
+            }
+        }
+        stage('Tests') {
+            agent { label 'docker' }
+            // docker run --rm --name jmeter --network appregister_default -v ${PWD}:${PWD} -w ${PWD} justb4/jmeter -n -t src/main/resources/jmeter.jmx  -l src/main/resources/JMeter.jtl
+//            agent {
+//                docker {
+//                    image 'justb4/jmeter'
+//                    label 'docker'
+//                    args  "--network=appregister_default --name ${env.JOB_BASE_NAME}-qa"
+//                }
+//            }
+            steps {
+                //sh 'ls -lath'
+                //sh 'docker run --rm --name jmeter --network appregister_default -v ${PWD}:${PWD} -w ${PWD} justb4/jmeter -n -t src/main/resources/jmeter.jmx  -l src/main/resources/JMeter.jtl'
+                parallel(
+                        Integration: {
+                            sh 'docker-compose up --build backend-integrationtest'
+                        },
+                        JMeter: {
+                            sh 'docker-compose up --build backend-jmetertest'
+                        }
+                )
+                sh 'ls -lath src/main/resources/'
+            }
+        }
+        stage('Post-Test') {
+            agent { label 'docker' }
+            steps {
+                sh 'docker-compose stop'
+            }
+        }
         stage('Version & Package'){
             agent {
                 docker {

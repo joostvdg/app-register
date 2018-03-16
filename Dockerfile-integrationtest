@@ -4,6 +4,7 @@ RUN mkdir /usr/src/project
 WORKDIR /usr/src/project
 RUN gradle -v
 COPY build.gradle /usr/src/project
+COPY gradle.properties /usr/src/project
 RUN gradle showMeCache
 COPY . /usr/src/project
 RUN gradle build
