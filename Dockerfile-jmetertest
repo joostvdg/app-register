@@ -2,8 +2,5 @@ FROM justb4/jmeter
 USER root
 RUN mkdir -p /usr/src/project
 WORKDIR /usr/src/project
-#RUN gradle -v
-#COPY build.gradle /usr/src/project
-#COPY gradle.properties /usr/src/project
-#RUN gradle showMeCache
 COPY . /usr/src/project
+RUN ls -lath /usr/src/project
