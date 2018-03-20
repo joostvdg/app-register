@@ -64,6 +64,7 @@ pipeline {
             }
             steps {
                 sh 'ls -lath'
+                sh 'ls -lath src/main/resources'
             }
         }
         stage('Tests') {
@@ -128,6 +129,17 @@ pipeline {
              steps {
                  sh 'docker-compose build backend'
              }
+        }
+        // https://anchore.com/blog/securing-jenkins-cicd-container-pipeline-anchore-10-minutes/
+        stage('Anchore Scan'){
+            agent { label 'docker' }
+            steps {
+                script {
+                    def imageLine = 'appregister-backend:latest'
+                    writeFile file: 'anchore_images', text: imageLine
+                    anchore name: 'anchore_images', inputQueries: [[query: 'cve-scan all'], [query: 'list-packages all'], [query: 'list-files all'], [query: 'show-pkg-diffs base']]
+                }
+            }
         }
         // TODO: mount to network so we can push to registry:5000
         stage('Docker Tag & Push') {

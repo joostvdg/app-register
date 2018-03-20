@@ -1,4 +1,4 @@
-FROM anapsix/alpine-java:8_jdk_unlimited
+FROM openjdk:8-jdk-slim
 
 ## LABELS
 LABEL authors="Joost van der Griendt <joostvdg@gmail.com>"
