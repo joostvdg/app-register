@@ -52,8 +52,8 @@ services:
       context: .
       dockerfile: Dockerfile-jmetertest
     image: appregister-backend-jmetertest
-    command: "-n -t /usr/src/project/src/main/resources/jmeter.jmx  -l /usr/src/project/src/main/resources/JMeter.jtl"
-    volumes: ["${PWD}:/usr/src/project/"]
+    command: "-n -t /usr/src/project/src/main/resources/jmeter.jmx  -l /tmp/JMeter.jtl"
+    volumes: ["${PWD}:/tmp"]
 
 volumes:
   mongodb_data:
