@@ -48,41 +48,19 @@ pipeline {
             }
         }
         stage('JMeter') {
-//            agent {
-//                docker {
-//                    image 'justb4/jmeter'
-//                    label 'docker'
-//                    args  "--network=appregister_default --name ${env.JOB_BASE_NAME}-jmeter -v ${PWD}:${PWD} -w ${PWD}"
-//                }
-//            }
-            agent {
-                dockerfile {
-                    filename 'Dockerfile-jmetertest'
-                    dir '.'
-                    label 'docker'
-                }
-            }
+            agent { label 'docker' }
             steps {
-                sh 'ls -lath'
                 sh 'ls -lath src/main/resources'
+                sh 'docker-compose up --build backend-jmetertest'
+                sh 'docker cp appregister_backend-jmetertest_1:/tmp/JMeter.jtl ${PWD}'
+                sh 'ls -lath'
+                script {
+                    perfReport percentiles: '0,50,90,100', sourceDataFiles: '**/*.jtl'
+                }
             }
         }
         stage('Tests') {
             agent { label 'docker' }
-            // docker run --rm --name jmeter --network appregister_default -v ${PWD}:${PWD} -w ${PWD} justb4/jmeter -n -t src/main/resources/jmeter.jmx  -l src/main/resources/JMeter.jtl
-//            agent {
-//                docker {
-//                    image 'justb4/jmeter'
-//                    label 'docker'
-//                    args  "--network=appregister_default --name ${env.JOB_BASE_NAME}-qa"
-//                }
-//            }
-            //sh 'ls -lath'
-            //sh 'docker run --rm --name jmeter --network appregister_default -v ${PWD}:${PWD} -w ${PWD} justb4/jmeter -n -t src/main/resources/jmeter.jmx  -l src/main/resources/JMeter.jtl'
-//            JMeter: {
-//                sh 'docker-compose up --build backend-jmetertest'
-//                sh 'ls -lath src/main/resources/'
-//            },
             steps {
                 parallel(
                         Integration: {
@@ -137,7 +115,7 @@ pipeline {
                 script {
                     def imageLine = 'appregister-backend:latest'
                     writeFile file: 'anchore_images', text: imageLine
-                    anchore name: 'anchore_images', inputQueries: [[query: 'cve-scan all'], [query: 'list-packages all'], [query: 'list-files all'], [query: 'show-pkg-diffs base']]
+                    anchore name: 'anchore_images', bailOnFail: false, inputQueries: [[query: 'cve-scan all'], [query: 'list-packages all'], [query: 'list-files all'], [query: 'show-pkg-diffs base']]
                 }
             }
         }

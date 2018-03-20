@@ -5,4 +5,4 @@ WORKDIR /usr/src/project
 COPY . /usr/src/project
 RUN ls -lath /usr/src/project
 RUN ls -lath /usr/src/project/src/main/resources
- 
+CMD -n -t src/main/resources/jmeter.jmx -l /tmp/JMeter.jtl
