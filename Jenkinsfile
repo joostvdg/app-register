@@ -47,6 +47,25 @@ pipeline {
                 sh 'docker-compose up -d --build backend mongodb'
             }
         }
+        stage('JMeter') {
+//            agent {
+//                docker {
+//                    image 'justb4/jmeter'
+//                    label 'docker'
+//                    args  "--network=appregister_default --name ${env.JOB_BASE_NAME}-jmeter -v ${PWD}:${PWD} -w ${PWD}"
+//                }
+//            }
+            agent {
+                dockerfile {
+                    filename 'Dockerfile-jmetertest'
+                    dir '.'
+                    label 'docker'
+                }
+            }
+            steps {
+                sh 'ls -lath'
+            }
+        }
         stage('Tests') {
             agent { label 'docker' }
             // docker run --rm --name jmeter --network appregister_default -v ${PWD}:${PWD} -w ${PWD} justb4/jmeter -n -t src/main/resources/jmeter.jmx  -l src/main/resources/JMeter.jtl
@@ -57,18 +76,31 @@ pipeline {
 //                    args  "--network=appregister_default --name ${env.JOB_BASE_NAME}-qa"
 //                }
 //            }
+            //sh 'ls -lath'
+            //sh 'docker run --rm --name jmeter --network appregister_default -v ${PWD}:${PWD} -w ${PWD} justb4/jmeter -n -t src/main/resources/jmeter.jmx  -l src/main/resources/JMeter.jtl'
+//            JMeter: {
+//                sh 'docker-compose up --build backend-jmetertest'
+//                sh 'ls -lath src/main/resources/'
+//            },
             steps {
-                //sh 'ls -lath'
-                //sh 'docker run --rm --name jmeter --network appregister_default -v ${PWD}:${PWD} -w ${PWD} justb4/jmeter -n -t src/main/resources/jmeter.jmx  -l src/main/resources/JMeter.jtl'
                 parallel(
                         Integration: {
                             sh 'docker-compose up --build backend-integrationtest'
                         },
-                        JMeter: {
-                            sh 'docker-compose up --build backend-jmetertest'
-                        }
+                        TestDockerfile: {
+                            script {
+                                def lintResult = sh returnStdout: true, script: 'docker run --rm -i lukasmartinelli/hadolint < Dockerfile'
+                                if (lintResult.trim() == '') {
+                                    println 'Lint finished with no errors'
+                                } else {
+                                    println 'Error found in Lint'
+                                    println "${lintResult}"
+                                    currentBuild.result = 'UNSTABLE'
+                                }
+                            }
+                        }, // end test dockerfile
+
                 )
-                sh 'ls -lath src/main/resources/'
             }
         }
         stage('Post-Test') {

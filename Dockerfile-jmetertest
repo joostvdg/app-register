@@ -4,3 +4,4 @@ RUN mkdir -p /usr/src/project
 WORKDIR /usr/src/project
 COPY . /usr/src/project
 RUN ls -lath /usr/src/project
+CMD -n -t src/main/resources/jmeter.jmx  -l src/main/resources/JMeter.jtl
