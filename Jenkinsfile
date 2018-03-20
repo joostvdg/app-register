@@ -47,24 +47,24 @@ pipeline {
                 sh 'docker-compose up -d --build backend mongodb'
             }
         }
-        stage('JMeter') {
-            agent { label 'docker' }
-            steps {
-                sh 'ls -lath src/main/resources'
-                sh 'docker-compose up --build backend-jmetertest'
-                sh 'docker cp appregister_backend-jmetertest_1:/tmp/JMeter.jtl ${PWD}'
-                sh 'ls -lath'
-                script {
-                    perfReport percentiles: '0,50,90,100', sourceDataFiles: '**/*.jtl'
-                }
-            }
-        }
         stage('Tests') {
             agent { label 'docker' }
             steps {
                 parallel(
                         Integration: {
                             sh 'docker-compose up --build backend-integrationtest'
+                        },
+                        JMeter: {
+                            sh 'ls -lath src/main/resources'
+                            sh 'docker-compose up --build backend-jmetertest'
+                            sh 'docker cp appregister_backend-jmetertest_1:/tmp/JMeter.jtl ${PWD}'
+                            sh 'ls -lath'
+                            script {
+                                perfReport percentiles: '0,50,90,100', sourceDataFiles: '**/*.jtl'
+                            }
+                        },
+                        ZAP: {
+                            sh 'docker run -i --rm --name zapcli --network appregister_default owasp/zap2docker-stable zap-cli quick-scan --self-contained  --start-options \'-config api.disablekey=true\' http://backend:8888'
                         },
                         TestDockerfile: {
                             script {
