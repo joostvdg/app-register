@@ -16,5 +16,5 @@ data class Product(@Id val identifier: String?,
                    val created: Int,
                    var components: List<Component>?,
                    var attributes: List<Attribute>?,
-                   var maintainer: Person?,
+                   var maintainers: List<Person>?,
                    var owner: Team?)

@@ -14,19 +14,106 @@ version: "3.5"
 
 services:
 
+#  proxy:
+#    image: apache-reverse-proxy
+#    build: proxy
+#    labels:
+#      - nl.flusso.cd.namespace=appregister
+#      - nl.flusso.cd.name="Apache Reverse Proxy"
+#      - nl.flusso.cd.description="Reverse proxy for the applications with Apache"
+#    restart: always
+#    depends_on:
+#      - backend
+#      - kibana
+#      - mongodb
+#      - service-listing
+#      - consul
+#    ports:
+#      - 8888:80
+
   backend:
     build:
       context: .
       dockerfile: Dockerfile
     image: appregister-backend
+    depends_on:
+      - consul
+      - mongodb
+      - elasticsearch
+    restart: always
     labels:
       - com.github.joostvdg.namespace=appregister
       - com.github.joostvdg.name="App Register Backend"
       - com.github.joostvdg.description="The backend application for App Register, for registering applications"
       - com.github.joostvdg.webPath=/
       - com.github.joostvdg.webPort=8888
+    networks:
+      - ar
     ports:
-      - 8888:8888
+      - 8888:8080
+
+  elasticsearch:
+    image: docker.elastic.co/elasticsearch/elasticsearch:6.2.3
+    environment:
+      - cluster.name=docker-cluster
+      - bootstrap.memory_lock=true
+      - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
+    restart: always
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
+    labels:
+      - com.github.joostvdg.namespace=appregister
+      - com.github.joostvdg.name="Elasticsearch Node1"
+      - com.github.joostvdg.description="Datastore for events"
+      - com.github.joostvdg.webPath=/_cluster/health
+      - com.github.joostvdg.webPort=9200
+    networks:
+      - ar
+    volumes:
+      - esdata1:/usr/share/elasticsearch/data
+    ports:
+      - 9200:9200
+
+  elasticsearch2:
+    image: docker.elastic.co/elasticsearch/elasticsearch:6.2.3
+    depends_on:
+      - elasticsearch
+    environment:
+      - cluster.name=docker-cluster
+      - bootstrap.memory_lock=true
+      - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
+      - "discovery.zen.ping.unicast.hosts=elasticsearch"
+    restart: always
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
+    labels:
+      - com.github.joostvdg.namespace=appregister
+      - com.github.joostvdg.name="Elasticsearch Node2"
+      - com.github.joostvdg.description="Datastore for events"
+    networks:
+      - ar
+    volumes:
+      - esdata2:/usr/share/elasticsearch/data
+
+  kibana:
+    image: docker.elastic.co/kibana/kibana:6.2.3
+    depends_on:
+      - elasticsearch
+      - elasticsearch2
+    labels:
+      - com.github.joostvdg.namespace=appregister
+      - com.github.joostvdg.name="Kibana"
+      - com.github.joostvdg.description="UI for ElasticSearch"
+      - com.github.joostvdg.webPath=/
+      - com.github.joostvdg.webPort=5601
+    networks:
+      - ar
+    ports:
+      - 5601:5601
 
   mongodb:
     image: 'bitnami/mongodb:3.6'
@@ -36,15 +123,47 @@ services:
       - com.github.joostvdg.description="The MongoDB database"
       - com.github.joostvdg.webPath=/
       - com.github.joostvdg.webPort=27017
-    ports:
-      - "27017:27017"
     volumes: ["mongodb_data:/bitnami"]
+    restart: always
+    networks:
+      - ar
+#    ports:
+#      - "27017:27017"
+
+  consul:
+    image: consul
+    labels:
+      - com.github.joostvdg.namespace=appregister
+      - com.github.joostvdg.name="Consul"
+      - com.github.joostvdg.description="Config and Discovery server"
+      - com.github.joostvdg.webPath=/
+      - com.github.joostvdg.webPort=8500
+    restart: always
+    networks:
+      - ar
+    ports:
+      - 8500:8500
+
+  service-listing:
+    image: abnamrocoesd/cicd-sandbox-util:latest
+    labels:
+      - com.github.joostvdg.namespace=appregister
+      - com.github.joostvdg.name="AppRegister Service Listing"
+      - com.github.joostvdg.description="The container of this page"
+    command: cicd-util -action serve -labelPrefix "com.github.joostvdg." -namespace "appregister"
+    volumes: ["/var/run/docker.sock:/var/run/docker.sock"]
+    ports:
+      - 8887:7777
+    networks:
+      - ar
 
   backend-integrationtest:
     build:
       context: .
       dockerfile: Dockerfile-integrationtest
     image: appregister-backend-test
+    networks:
+      - ar
     command: "gradle integrationTest"
 
   backend-jmetertest:
@@ -53,7 +172,15 @@ services:
       dockerfile: Dockerfile-jmetertest
     image: appregister-backend-jmetertest
     command: "-n -t /usr/src/project/src/main/resources/jmeter.jmx  -l /tmp/JMeter.jtl"
+    networks:
+      - ar
     volumes: ["${PWD}:/tmp"]
 
 volumes:
   mongodb_data:
+  esdata:
+  esdata1:
+  esdata2:
+
+networks:
+  ar:

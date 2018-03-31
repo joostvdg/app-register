@@ -72,3 +72,9 @@ Application Registration system.
 * Blueprint for DUI
     * DUI = technical challenge of distributed, parallel, concurrent computing
     * app-register = problem domain
+
+### Other elements
+
+* Consul:
+    * https://cloud.spring.io/spring-cloud-consul/
+    * http://www.baeldung.com/spring-cloud-consul
