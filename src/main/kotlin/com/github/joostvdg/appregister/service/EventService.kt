@@ -4,6 +4,7 @@ import com.github.joostvdg.appregister.model.event.Event
 import com.github.joostvdg.appregister.repository.EventRespository
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Service
+import java.time.LocalDateTime
 import java.util.*
 
 interface EventService {
@@ -21,6 +22,7 @@ class EventServiceImpl: EventService {
         if (event.identifier.isNullOrBlank()) {
             event.identifier = UUID.randomUUID().toString()
         }
+        event.recorded = LocalDateTime.now()
         eventRespository.save(event)
     }
 

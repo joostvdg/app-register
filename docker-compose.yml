@@ -25,7 +25,7 @@ services:
 #    depends_on:
 #      - backend
 #      - kibana
-#      - mongodb
+#      - mongo
 #      - service-listing
 #      - consul
 #    ports:
@@ -38,7 +38,7 @@ services:
     image: appregister-backend
     depends_on:
       - consul
-      - mongodb
+      - mongo
       - elasticsearch
     restart: always
     labels:
@@ -52,6 +52,7 @@ services:
     ports:
       - 8888:8080
 
+   # http://localhost:9200/_cluster/health
   elasticsearch:
     image: docker.elastic.co/elasticsearch/elasticsearch:6.2.3
     environment:
@@ -115,7 +116,7 @@ services:
     ports:
       - 5601:5601
 
-  mongodb:
+  mongo:
     image: 'bitnami/mongodb:3.6'
     labels:
       - com.github.joostvdg.namespace=appregister
@@ -129,6 +130,26 @@ services:
       - ar
 #    ports:
 #      - "27017:27017"
+
+  mongo-express:
+    image: mongo-express:0.45.0
+    labels:
+      - com.github.joostvdg.namespace=appregister
+      - com.github.joostvdg.name="Mongo Express"
+      - com.github.joostvdg.description="A UI for MongoDB database"
+      - com.github.joostvdg.webPath=/
+      - com.github.joostvdg.webPort=8889
+    depends_on:
+      - mongo
+    environment:
+      - ME_CONFIG_OPTIONS_EDITORTHEME=ambiance
+      - ME_CONFIG_BASICAUTH_USERNAME=user
+      - ME_CONFIG_BASICAUTH_PASSWORD=password
+    restart: always
+    networks:
+      - ar
+    ports:
+      - "8889:8081"
 
   consul:
     image: consul

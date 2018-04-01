@@ -4,5 +4,7 @@ import com.github.joostvdg.appregister.model.product.ComponentType
 import org.springframework.data.annotation.Id
 
 data class ComponentTemplate (@Id val identifier: String?,
+                              val name: String,
+                              val description: String,
                               val type: ComponentType,
                               var attributes: List<TemplateAttribute>)
