@@ -78,3 +78,16 @@ Application Registration system.
 * Consul:
     * https://cloud.spring.io/spring-cloud-consul/
     * http://www.baeldung.com/spring-cloud-consul
+
+## TODO
+
+Event stuff:
+
+```yaml
+  creationTimestamp: 2017-05-31T07:21:55Z
+  name: my-config
+  namespace: default
+  resourceVersion: "241345"
+  selfLink: /api/v1/namespaces/default/configmaps/my-config
+  uid: d35f0a3d-45d1-11e7-9e62-080027a46057
+```
